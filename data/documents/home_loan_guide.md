@@ -54,6 +54,9 @@ Home loans are available for a minimum of 5 years and a maximum of 30 years. Lon
 1. Submit a loan application online at bnb.co.in/loans or at any BNB branch.
 2. A Relationship Manager will contact you within 2 working days to discuss your requirement.
 3. BNB initiates a credit appraisal and property valuation.
+
+**After Sanction**
+
 4. A conditional sanction letter is issued within 10 working days of application approval.
 5. After the sanction letter, document verification and legal clearance must be completed. For ready-to-move properties, disbursement to the seller typically happens within 5 to 10 working days of the sanction letter. Under-construction properties are disbursed in stages linked to construction milestones.
 
@@ -65,19 +68,9 @@ A processing fee is charged at the time of application. Please ask your Relation
 
 ## Prepayment and Foreclosure
 
-Home loans at BNB are linked to the floating rate, which means there is no penalty for partial prepayment or full foreclosure after 12 months of disbursement. This is in line with RBI guidelines for floating-rate home loans.
+Home loans at BNB are linked to the floating rate, which means there is no penalty for partial prepayment or full foreclosure at any time. This is in line with RBI guidelines for floating-rate home loans, which prohibit prepayment penalties from the date of disbursement.
 
 ## What Happens If You Miss an EMI
 
 Missing an EMI triggers a reminder from the collections team. Persistent default affects your CIBIL score and may lead to a legal notice. If you are facing a financial hardship, contact your Relationship Manager immediately -- BNB offers a restructuring facility for genuine hardship cases.
 
-## Frequently Asked Questions
-
-**Can I take a home loan for a property I already own?**
-A loan against an existing property (LAP) is a separate product. A home loan is for purchasing or constructing a new property.
-
-**Is the home loan interest tax deductible?**
-Under Section 24(b) of the Income Tax Act, the interest portion of the EMI on a home loan is tax deductible. Consult your tax advisor for the applicable limit.
-
-**Can I change from floating to fixed rate?**
-BNB does not currently offer a mid-tenure switch from floating to fixed rate. New fixed-rate home loan products are available on application.

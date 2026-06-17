@@ -8,6 +8,7 @@ s*/instructor_notes.md
 
 # Generated files -- recreate with seed.py and ingest.py
 data/bnb_data.db
+data/checkpoints.db
 data/vectorstore/
 
 # Python bytecode

@@ -131,7 +131,7 @@ failed = [(label, fix) for label, p, fix in results if not p]
 print("\n" + "="*55)
 if not failed:
     print(f"\n  {PASS} Setup complete -- you're ready for Session 1!\n")
-    print("  See you on June 13, 2026 at 10:00 AM IST.\n")
+    print("  See you on June 21, 2026 at 10:00 AM IST.\n")
 else:
     print(f"\n  {FAIL} {len(failed)} item(s) need attention:\n")
     for label, fix in failed:

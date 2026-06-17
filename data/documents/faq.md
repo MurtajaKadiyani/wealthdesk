@@ -34,6 +34,15 @@ There are two stages. First, after your application is submitted, BNB conducts a
 **Can a Non-Resident Indian (NRI) take a home loan from BNB?**
 BNB offers NRI home loans. The eligibility criteria and documentation differ from resident Indian home loans. Contact the NRI Banking desk at any metro BNB branch for details.
 
+**Can I take a home loan for a property I already own?**
+A loan against an existing property (LAP) is a separate product. A home loan is for purchasing or constructing a new property.
+
+**Is the home loan interest tax deductible?**
+Under Section 24(b) of the Income Tax Act, the interest portion of the EMI on a home loan is tax deductible. Consult your tax advisor for the applicable limit.
+
+**Can I change from floating to fixed rate?**
+BNB does not currently offer a mid-tenure switch from floating to fixed rate. New fixed-rate home loan products are available on application.
+
 ## Fixed Deposits
 
 **Can I open an FD online?**
