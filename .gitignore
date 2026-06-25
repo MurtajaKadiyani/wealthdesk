@@ -1,12 +1,23 @@
 # Secrets -- never commit
 .env
 
-# Instructor-only files -- released after each session
-# To release: git add -f s0X/solution/ && git add -f s0X/instructor_notes.md
+# Instructor-only files -- released before each session
+# To release a session: git rm -r --cached s0X/ && git add -f s0X/ && git commit
 s*/solution/
 s*/instructor_notes.md
 s*/CLAUDE_CODE_PROMPTS.md
 prds/
+s02/
+s03/
+s04/
+s05/
+s06/
+s07/
+s08/
+s09/
+s10/
+s11/
+s12/
 
 # Generated files -- recreate with seed.py and ingest.py
 data/bnb_data.db

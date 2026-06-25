@@ -1,0 +1,1 @@
+{"dependencies": ["."], "graphs": {"wealthdesk": "./wealthdesk/agent.py:graph"}, "env": "../../.env"}
