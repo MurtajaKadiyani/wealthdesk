@@ -1,53 +1,44 @@
 """
 wealthdesk/nodes.py
 -------------------
-Graph nodes for WealthDesk.
+Node functions for the WealthDesk graph.
 
-Session 2: the respond() node now carries conversation history across
-turns so the LLM can refer back to earlier messages.
+Each node is a plain Python function:
+  - Input : the full WealthDeskState (read-only)
+  - Output: a dict containing ONLY the keys this node changed
+             (LangGraph merges it into the state automatically)
 """
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 from .config import SYSTEM_PROMPT
 from .state import WealthDeskState
 from .tools import llm
 
-
 def respond(state: WealthDeskState) -> dict:
-    history = state.get("history", [])
-
-    # -----------------------------------------------------------------------
-    # TODO 3 of 4 -- Build the message list and update history
-    # -----------------------------------------------------------------------
-    # Step A: Build the message list for the LLM call.
-    #
-    #   messages = [SystemMessage(content=SYSTEM_PROMPT)]
-    #
-    #   Then loop over `history` and append each turn:
-    #     - {"role": "user", ...}      → HumanMessage(content=turn["content"])
-    #     - {"role": "assistant", ...} → AIMessage(content=turn["content"])
-    #
-    #   Finally append the new customer turn:
-    #     messages.append(HumanMessage(content=state["customer_message"]))
-    #
-    # Step B: Call the LLM.
-    #
-    #   try:
-    #       result = llm.invoke(messages)
-    #       response_text = result.content
-    #   except Exception as e:
-    #       print(f"[WealthDesk] LLM error: {e}")
-    #       response_text = "I am temporarily unavailable. Please try again in a moment."
-    #
-    # Step C: Append this turn to history and return both fields.
-    #
-    #   new_history = history + [
-    #       {"role": "user",      "content": state["customer_message"]},
-    #       {"role": "assistant", "content": response_text},
-    #   ]
-    #   return {"response": response_text, "history": new_history}
-    #
-    # -----------------------------------------------------------------------
-    # TODO: replace this placeholder with the implementation above
-    response_text = "TODO: implement respond()"
-    return {"response": response_text, "history": history}
+    """Call the LLM and return the agent's reply."""
+    messages = [
+        SystemMessage(content=SYSTEM_PROMPT)
+    ]
+    history = state.get("history",[])
+    for turn in history:
+        if turn["role"] == "user":
+            messages.append(HumanMessage(content=turn["content"])) # type: ignore
+        else:
+            messages.append(AIMessage(content=turn["content"])) # type: ignore
+    
+    messages.append(HumanMessage(content=state["customer_message"])) # type: ignore
+    
+    try:
+      result = llm.invoke(messages)
+      response_text = result.content
+      new_history = history + [{"role": "user", "content": state["customer_message"]}, # type: ignore
+                             {"role": "assistant", "content": response_text}]
+      return {"response": response_text, "history": new_history}
+    except Exception as e:
+      print(f"[WealthDesk] LLM error: {e}")
+      return {"response": "I am temporarily unavailable. Please try again in a moment" }
+     
+    # State has two fields, only one field got updated as parr of this function execution,
+    # node execution. So method will return only the modified values
+    # evntually state will contain multiple fields , maybe history? Query type , information about retrieved docs ,
+    # Compliance passed or not?  

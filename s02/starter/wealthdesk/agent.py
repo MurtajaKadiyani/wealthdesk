@@ -1,60 +1,53 @@
 """
 wealthdesk/agent.py
 -------------------
-Builds and runs the WealthDesk LangGraph agent.
+Graph construction and the terminal loop.
 
-Session 2: the graph is compiled with a checkpointer so LangGraph
-persists conversation history across turns automatically.
-
-Run with:
+Run the agent from the repo root:
+    cd cohort-1/wealthdesk/s01/starter
     python -m wealthdesk.agent
-"""
-import sqlite3
-from uuid import uuid4
 
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.checkpoint.sqlite import SqliteSaver
+Session 1 graph:
+    START --> respond --> END
+"""
 from langgraph.graph import END, StateGraph
 
-from .config import CHECKPOINT_DB
 from .nodes import respond
 from .state import WealthDeskState
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.sqlite import SqliteSaver
+import sqlite3
+from uuid import uuid4
+from .config import CHECKPOINT_DB
+
+def build_graph(checkpointer = None):
+    # Start -> Respond -> End
+    builder = StateGraph(WealthDeskState)
+    builder.add_node("respond", respond)
+    builder.set_entry_point("respond") #START
+    builder.add_edge("respond", END) # END
+    if checkpointer is None:
+        checkpointer = MemorySaver()
+    return builder.compile(checkpointer=checkpointer)
 
 
-# ---------------------------------------------------------------------------
-# TODO 4 of 4 -- Build the graph with checkpointer support
-# ---------------------------------------------------------------------------
-# def build_graph(checkpointer=None):
-#     builder = StateGraph(WealthDeskState)
-#     builder.add_node("respond", respond)
-#     builder.set_entry_point("respond")
-#     builder.add_edge("respond", END)
-#
-#     if checkpointer is None:
-#         checkpointer = MemorySaver()
-#
-#     return builder.compile(checkpointer=checkpointer)
-#
-# ---------------------------------------------------------------------------
-# TODO: uncomment the function above, then delete these two placeholder lines
-def build_graph(checkpointer=None):
-    raise NotImplementedError("TODO 4: implement build_graph()")
-
-
+# Module-level graph instance required by langgraph.json for LangGraph Studio.
+# run() uses this directly rather than building a second copy.
 graph = build_graph()
 
 
+# ---------------------------------------------------------------------------
+# Terminal loop (provided -- no changes needed)
+# ---------------------------------------------------------------------------
+
 def run() -> None:
     conn = sqlite3.connect(str(CHECKPOINT_DB), check_same_thread=False)
-    _graph    = build_graph(checkpointer=SqliteSaver(conn))
+    _graph    = build_graph(checkpointer=SqliteSaver(conn))  # terminal app opts into disk persistence explicit
     thread_id = str(uuid4())
     config    = {"configurable": {"thread_id": thread_id}}
-
     print("=" * 55)
     print("  WealthDesk | Bharat National Bank")
     print("  Type 'quit' to exit")
-    print("=" * 55)
-    print(f"  Session: {thread_id[:8]}...")
     print("=" * 55)
 
     while True:
@@ -70,10 +63,9 @@ def run() -> None:
             print("\nWealthDesk: Thank you for choosing Bharat National Bank. Goodbye!")
             break
 
-        result = _graph.invoke(
-            {"customer_message": user_input, "response": ""},
-            config=config,
-        )
+        # "response": "" is a placeholder to satisfy the TypedDict contract.
+        # respond() overwrites it; graph.invoke() returns the full merged state.
+        result = _graph.invoke({"customer_message": user_input, "response": ""},config=config) # type: ignore
         print(f"\nWealthDesk: {result['response']}")
 
 
