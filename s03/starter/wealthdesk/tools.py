@@ -2,7 +2,7 @@ import os
 
 from langchain_groq import ChatGroq
 
-from .config import MODEL_NAME, TEMPERATURE, MAX_TOKENS
+from .config import CLASSIFIER_MAX_TOKENS, CLASSIFIER_TEMPERATURE, MODEL_NAME, TEMPERATURE, MAX_TOKENS
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
@@ -18,4 +18,11 @@ llm = ChatGroq(
     model=MODEL_NAME,
     temperature=TEMPERATURE,
     max_tokens=MAX_TOKENS,
+)
+
+classifier_llm = ChatGroq(
+    api_key=GROQ_API_KEY, # type: ignore    
+    model=MODEL_NAME,
+    temperature=CLASSIFIER_TEMPERATURE,
+    max_tokens=CLASSIFIER_MAX_TOKENS,
 )

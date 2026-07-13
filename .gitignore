@@ -9,16 +9,6 @@ s*/instructor_notes_*.md
 s*/CLAUDE_CODE_PROMPTS.md
 s*/presentation_*.md
 prds/
-s03/
-s04/
-s05/
-s06/
-s07/
-s08/
-s09/
-s10/
-s11/
-s12/
 
 # Generated files -- recreate with seed.py and ingest.py
 data/bnb_data.db
