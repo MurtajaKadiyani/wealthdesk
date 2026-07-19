@@ -38,7 +38,7 @@ def respond(state: WealthDeskState) -> dict:
       print(f"[WealthDesk] LLM error: {e}")
       return {"response": "I am temporarily unavailable. Please try again in a moment" }
      
-    # State has two fields, only one field got updated as parr of this function execution,
+    # State has two fields, only one field got updated as part of this function execution,
     # node execution. So method will return only the modified values
     # evntually state will contain multiple fields , maybe history? Query type , information about retrieved docs ,
     # Compliance passed or not?  
