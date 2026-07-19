@@ -15,17 +15,6 @@ s*/*_check.md
 s*/*.pptx
 s*/instructor_demo/
 prds/
-<<<<<<< HEAD
-=======
-s05/
-s06/
-s07/
-s08/
-s09/
-s10/
-s11/
-s12/
->>>>>>> 7188cd97e705864e4432e46cde8096899846b899
 
 # Generated files -- recreate with seed.py and ingest.py
 data/bnb_data.db
