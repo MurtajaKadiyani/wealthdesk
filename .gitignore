@@ -7,12 +7,31 @@ s*/solution/
 s*/instructor_notes.md
 s*/instructor_notes_*.md
 s*/CLAUDE_CODE_PROMPTS.md
+s*/CLAUDE_CODE_PROMPTS_*.md
 s*/presentation_*.md
+s*/*_slides.md
+s*/*_DeepDive_*.md
+s*/*_check.md
+s*/*.pptx
+s*/instructor_demo/
 prds/
+<<<<<<< HEAD
+=======
+s05/
+s06/
+s07/
+s08/
+s09/
+s10/
+s11/
+s12/
+>>>>>>> 7188cd97e705864e4432e46cde8096899846b899
 
 # Generated files -- recreate with seed.py and ingest.py
 data/bnb_data.db
 data/checkpoints.db
+data/checkpoints.db-shm
+data/checkpoints.db-wal
 data/vectorstore/
 
 # Python bytecode
@@ -24,6 +43,9 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# LangGraph Studio local server cache
+.langgraph_api/
 
 # Editor
 .vscode/settings.json

@@ -21,7 +21,7 @@ BNB does not share your personal or financial data with any third party except a
 BNB follows a three-tier grievance mechanism:
 
 **Tier 1 -- Branch and Digital Channels:**
-Raise a complaint at the branch, via the BNB mobile app, or by calling 1800-XXX-XXXX (toll-free, 8 AM to 8 PM, Monday to Saturday). The target resolution time for Tier 1 complaints is 10 working days.
+Raise a complaint at the branch, via the BNB mobile app, or by calling 1800-103-1906 (toll-free, 8 AM to 8 PM, Monday to Saturday). The target resolution time for Tier 1 complaints is 10 working days.
 
 **Tier 2 -- Nodal Officer:**
 If the Tier 1 resolution is unsatisfactory, escalate to the Regional Nodal Officer. Contact details are available at every BNB branch and on the website. Target resolution time: 15 working days.
@@ -53,7 +53,7 @@ BNB is required by the Prevention of Money Laundering Act, 2002 (PMLA) to monito
 
 ## Security and Fraud Prevention
 
-**BNB will never ask for your PIN, OTP, or password.** Any call, SMS, or email requesting this information is a fraud attempt. Disconnect immediately and report it to 1800-XXX-XXXX.
+**BNB will never ask for your PIN, OTP, or password.** Any call, SMS, or email requesting this information is a fraud attempt. Disconnect immediately and report it to 1800-103-1906.
 
 You are responsible for keeping your internet banking credentials and debit/credit card details secure. Do not share credentials with family members, bank employees, or third-party service providers.
 

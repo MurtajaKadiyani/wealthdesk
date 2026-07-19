@@ -115,6 +115,28 @@ except FileNotFoundError:
 except Exception as e:
     check("Ollama installed", False, fix=f"Error: {e}")
 
+# ── LangSmith (Session 4+) ─────────────────────────────────
+print("\nLangSmith (needed from Session 4)")
+langsmith_key = os.environ.get("LANGSMITH_API_KEY", "")
+if not langsmith_key:
+    from dotenv import load_dotenv
+    load_dotenv()
+    langsmith_key = os.environ.get("LANGSMITH_API_KEY", "")
+check(
+    "LANGSMITH_API_KEY set",
+    bool(langsmith_key and not langsmith_key.startswith("your_")),
+    fix="Get a free key at smith.langchain.com and add LANGSMITH_API_KEY to .env"
+)
+
+# ── Vector store (Session 4+) ──────────────────────────────
+print("\nVector store (needed from Session 4)")
+vectorstore_path = os.path.join("data", "vectorstore")
+check(
+    "data/vectorstore/ exists",
+    os.path.isdir(vectorstore_path) and bool(os.listdir(vectorstore_path)),
+    fix="Run: python data/ingest.py"
+)
+
 # ── Git ────────────────────────────────────────────────────
 print("\nGit")
 try:

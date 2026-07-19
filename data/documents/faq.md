@@ -9,7 +9,7 @@ BNB offers savings accounts (for individuals, interest-bearing), current account
 Your IFSC code is printed on your cheque book and appears on your bank statement. You can also find it on the BNB website under the Branch Locator section by searching for your branch name or city.
 
 **What are BNB's customer care hours?**
-The toll-free number (1800-XXX-XXXX) is available from 8 AM to 8 PM, Monday to Saturday. For ATM-related emergencies (card blocked, suspicious transaction), a 24-hour helpline is available -- the number is printed on the back of your debit card.
+The toll-free number (1800-103-1906) is available from 8 AM to 8 PM, Monday to Saturday. For ATM-related emergencies (card blocked, suspicious transaction), a 24-hour helpline is available -- the number is printed on the back of your debit card.
 
 **How do I open a new savings account?**
 Visit any BNB branch with your Aadhaar, PAN, and a passport-sized photograph. Alternatively, complete the Video KYC process on the BNB mobile app to open a basic savings account digitally.
@@ -37,6 +37,9 @@ BNB offers NRI home loans. The eligibility criteria and documentation differ fro
 **Can I take a home loan for a property I already own?**
 A loan against an existing property (LAP) is a separate product. A home loan is for purchasing or constructing a new property.
 
+**What documents do I need to apply for a BNB home loan?**
+To apply for a BNB home loan you need three types of documents. (1) Identity and address proof: PAN card and Aadhaar card for all applicants. (2) Income proof: salaried applicants must submit last 3 months' salary slips, last 6 months' bank statement, and Form 16 or ITR for the last 2 years; self-employed applicants must submit last 2 years' ITR with P&L statements and last 12 months' business bank statement. (3) Property documents: sale deed or agreement to sell, approved building plan, NOC from builder or society, and property tax receipts.
+
 **Is the home loan interest tax deductible?**
 Under Section 24(b) of the Income Tax Act, the interest portion of the EMI on a home loan is tax deductible. Consult your tax advisor for the applicable limit.
 
@@ -44,6 +47,9 @@ Under Section 24(b) of the Income Tax Act, the interest portion of the EMI on a 
 BNB does not currently offer a mid-tenure switch from floating to fixed rate. New fixed-rate home loan products are available on application.
 
 ## Fixed Deposits
+
+**Does the BNB 5-year FD qualify for tax deduction under Section 80C?**
+Yes. BNB's 5-year Tax Saving Fixed Deposit qualifies for a deduction under Section 80C of the Income Tax Act, up to Rs. 1.5 lakhs per financial year. The 5-year lock-in cannot be broken early, and no loan can be taken against a Tax Saving FD. This is a product feature, not personalised tax advice.
 
 **Can I open an FD online?**
 Yes. Log in to internet banking or the BNB mobile app, go to Deposits > Open Fixed Deposit, choose your tenure and payout option, and confirm with your transaction OTP.

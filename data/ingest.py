@@ -3,7 +3,7 @@ data/ingest.py
 --------------
 Ingests BNB policy documents into ChromaDB.
 
-Run after seed.py:
+Run independently of seed.py (no dependency between them):
     python data/ingest.py
 
 What this script does:
@@ -139,10 +139,24 @@ def main() -> None:
     VECTOR_DIR.mkdir(parents=True, exist_ok=True)
 
     print("Building vector store...")
+   # Configure Chroma's HNSW index to use cosine similarity.
+#
+# During retrieval, Chroma compares the query embedding with every stored
+# embedding using this metric. Cosine measures the angle between vectors,
+# making it well-suited for semantic text similarity.
+#
+# This metric becomes part of the HNSW index structure when the collection
+# is created and cannot be changed later. Switching to a different metric
+# (e.g., L2) requires rebuilding the vector store.
+#
+# For the WealthDesk corpus, cosine also produces similarity scores that
+# separate meaningful queries from noise more cleanly, making thresholding
+# (e.g., 0.3) easier to tune.
     Chroma.from_documents(
         documents=chunks,
         embedding=embeddings,
         persist_directory=str(VECTOR_DIR),
+        collection_metadata={"hnsw:space": "cosine"},
     )
 
     print(f"\nDone. {len(chunks)} chunks stored at {VECTOR_DIR}")

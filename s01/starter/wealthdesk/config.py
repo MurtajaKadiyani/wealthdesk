@@ -9,7 +9,7 @@ Nothing here makes API calls -- it's pure configuration.
 # Model settings (provided -- no changes needed)
 # ---------------------------------------------------------------------------
 
-MODEL_NAME  = "meta-llama/llama-4-scout-17b-16e-instruct"
+MODEL_NAME  = "llama-3.3-70b-versatile"
 TEMPERATURE = 0.3
 MAX_TOKENS  = 300
 

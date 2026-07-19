@@ -87,10 +87,12 @@ wealthdesk/
     vectorstore/        Generated -- do not commit (in .gitignore)
 
   s01/                  Session 1: Basic Conversational Agent (US-01)
-    starter/main.py     Your starting point -- fill in the TODOs
-    solution/main.py    Reference solution
+    starter/            Your starting point -- fill in the TODOs
+      wealthdesk/       The agent package (agent.py, nodes.py, config.py, state.py, tools.py)
+      langgraph.json    LangGraph Studio config
+    solution/           Reference solution (same package layout)
     tests/test_s01.py   Unit tests (run with: pytest s01/tests/ -v)
-    instructor_notes.md Session plan, timings, common issues
+    instructor_notes.md Session plan, timings, common issues (instructor-only)
 
   s02/ ... s16/         Added as the course progresses
 
@@ -134,11 +136,10 @@ pytest s02/tests/ -v
 pytest s03/tests/ -v
 
 # Tests do not require a live Groq API key -- the LLM is mocked.
+# You can also run all sessions together -- each session uses its own
+# wealthdesk package, so there are no import collisions.
+pytest s01/tests/ s02/tests/ s03/tests/ -v
 ```
-
-Note: always run one session's tests at a time. All sessions use a file named
-`main.py`, so running multiple sessions together (e.g. `pytest s01/ s02/`) can
-cause the wrong `main` to be patched. Per-session runs are always correct.
 
 ---
 
