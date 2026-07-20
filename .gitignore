@@ -10,14 +10,14 @@ s*/CLAUDE_CODE_PROMPTS.md
 s*/CLAUDE_CODE_PROMPTS_*.md
 s*/presentation_*.md
 s*/*_slides.md
+s*/*_slides_*.md
 s*/*_DeepDive_*.md
 s*/*_check.md
 s*/*.pptx
+s*/*.html
+s*/*.pdf
 s*/instructor_demo/
 prds/
-s05/
-s06/
-s07/
 s08/
 s09/
 s10/
