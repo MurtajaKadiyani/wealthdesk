@@ -1,6 +1,9 @@
 # Secrets -- never commit
 .env
 
+# Participant resources -- shared separately, not tracked in repo
+resources/
+
 # Instructor-only files -- released before each session
 # To release a session: git rm -r --cached s0X/ && git add -f s0X/ && git commit
 s*/solution/

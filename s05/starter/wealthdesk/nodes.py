@@ -32,6 +32,12 @@ def _init_vectorstore() -> None:
             persist_directory=str(VECTORSTORE_DIR),
             embedding_function=embeddings,
         )
+        count = vectorstore._collection.count()
+        if count == 0:
+            print("[WealthDesk] Vectorstore opened but is EMPTY (0 chunks).")
+            print("  Run 'python data/ingest.py' from the project root to populate it.")
+        else:
+            print(f"[WealthDesk] Vectorstore ready — {count} chunks loaded.")
     except Exception as e:
         print(f"[WealthDesk] Could not load vectorstore: {e}")
         print("  Run 'python data/ingest.py' to create it.")
