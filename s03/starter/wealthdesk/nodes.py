@@ -14,8 +14,25 @@ from .config import CLASSIFY_SYSTEM_PROMPT, DECLINE_RESPONSE, ESCALATE_RESPONSE,
 from .state import WealthDeskState
 from .tools import llm, classifier_llm
 
+BLOCKLIST = [
+    "ignore all previous",
+    "forget everything",
+    "you are now",
+    "disregard your system",
+    "act as",
+    "jailbreak",
+]
+
 def classify(state: WealthDeskState) -> dict:
     """Call the LLM and return the agent's reply."""
+    msg = state["customer_message"].strip()
+
+    if any(phrase in msg.lower() for phrase in BLOCKLIST):
+        return {"query_type": "OUT_OF_SCOPE"}
+    
+    if not msg or len(msg) < 10 or len(msg) > 500:
+        return {"query_type": "OUT_OF_SCOPE"}
+    
     messages = [
         SystemMessage(content=CLASSIFY_SYSTEM_PROMPT),
         HumanMessage(content=state["customer_message"]),

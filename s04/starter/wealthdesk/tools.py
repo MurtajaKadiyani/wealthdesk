@@ -14,14 +14,14 @@ if not GROQ_API_KEY:
     )
 
 llm = ChatGroq(
-    api_key=GROQ_API_KEY,
+    api_key=GROQ_API_KEY, # type: ignore
     model=MODEL_NAME,
     temperature=TEMPERATURE,
     max_tokens=MAX_TOKENS,
 )
 
 classifier_llm = ChatGroq(
-    api_key=GROQ_API_KEY,
+    api_key=GROQ_API_KEY, # type: ignore
     model=MODEL_NAME,
     temperature=0.0,
     max_tokens=10,

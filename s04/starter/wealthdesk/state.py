@@ -14,7 +14,7 @@ class WealthDeskState(TypedDict):
     response:         str
     history:          list[dict]
     query_type:       str
-
+    retrieved_docs:   list[str]
     # -----------------------------------------------------------------------
     # TODO 1 of 4 -- Add the retrieved_docs field
     # -----------------------------------------------------------------------
