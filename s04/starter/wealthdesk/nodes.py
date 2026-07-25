@@ -39,6 +39,12 @@ def _init_vectorstore() -> None:
             persist_directory=str(VECTORSTORE_DIR),  # opens chroma.sqlite3 on disk — does NOT load all chunks into memory
             embedding_function=embeddings,            # same model used at ingest time — must match or retrieval breaks
         )
+        count = vectorstore._collection.count()
+        if count == 0:
+            print(f"[WealthDesk] Vectorstore opened but is EMPTY (0 chunks).")
+            print(f"  Run 'python data/ingest.py' from the wealthdesk/ root to populate it.")
+        else:
+            print(f"[WealthDesk] Vectorstore ready — {count} chunks loaded.")
     except Exception as e:
         print(f"[WealthDesk] Could not load vectorstore: {e}")
         print("  Run 'python data/ingest.py' to create it.")

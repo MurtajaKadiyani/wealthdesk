@@ -258,7 +258,7 @@ def main() -> None:
         seed_rate_history(conn)
         print_summary(conn)
 
-    print(f"\nDone. Run 'python data/ingest.py' next to set up ChromaDB.")
+    print(f"\nDone. Run 'python data/ingest.py' to rebuild the vectorstore if needed.")
 
 
 if __name__ == "__main__":

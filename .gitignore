@@ -1,6 +1,9 @@
 # Secrets -- never commit
 .env
 
+# Participant resources -- shared separately, not tracked in repo
+resources/
+
 # Instructor-only files -- released before each session
 # To release a session: git rm -r --cached s0X/ && git add -f s0X/ && git commit
 s*/solution/
@@ -10,9 +13,12 @@ s*/CLAUDE_CODE_PROMPTS.md
 s*/CLAUDE_CODE_PROMPTS_*.md
 s*/presentation_*.md
 s*/*_slides.md
+s*/*_slides_*.md
 s*/*_DeepDive_*.md
 s*/*_check.md
 s*/*.pptx
+s*/*.html
+s*/*.pdf
 s*/instructor_demo/
 prds/
 
