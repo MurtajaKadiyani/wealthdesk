@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-{"dependencies": ["."], "graphs": {"wealthdesk": "./wealthdesk/agent.py:graph"}, "env": "../../.env"}
-=======
 {"dependencies": ["."], "graphs": {"wealthdesk": "wealthdesk.agent:graph"}, "env": "../../.env"}
->>>>>>> 7188cd97e705864e4432e46cde8096899846b899
