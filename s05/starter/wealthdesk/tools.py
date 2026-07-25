@@ -12,7 +12,7 @@ import sqlite3
 from langchain_core.tools import tool
 from langchain_groq import ChatGroq
 
-from .config import DB_PATH, MODEL_NAME, CLASSIFIER_MODEL, TEMPERATURE, MAX_TOKENS
+from .config import DB_PATH, MODEL_NAME, CLASSIFIER_MODEL, TEMPERATURE, MAX_TOKENS,CLASSIFIER_MAX_TOKENS, CLASSIFIER_TEMPERATURE
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
@@ -33,8 +33,8 @@ llm = ChatGroq(
 classifier_llm = ChatGroq(
     api_key=GROQ_API_KEY,
     model=CLASSIFIER_MODEL,
-    temperature=0.0,
-    max_tokens=10,
+    temperature=CLASSIFIER_TEMPERATURE,
+    max_tokens=CLASSIFIER_MAX_TOKENS,
 )
 
 

@@ -12,8 +12,8 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from .config import (
-    CLASSIFY_SYSTEM, DECLINE_RESPONSE, ESCALATE_RESPONSE,
-    EMBED_MODEL, RETRIEVAL_K, SYSTEM_PROMPT, VECTORSTORE_DIR,
+    CLASSIFY_SYSTEM_PROMPT, DECLINE_RESPONSE, ESCALATE_RESPONSE,
+    EMBED_MODEL, RETRIEVAL_K, RETRIEVAL_SCORE_THRESHOLD, SYSTEM_PROMPT, VECTORSTORE_DIR,
 )
 from .state import WealthDeskState
 from .tools import classifier_llm, llm, llm_with_tools, _run_tool
@@ -44,9 +44,9 @@ def _init_vectorstore() -> None:
 
 
 def classify(state: WealthDeskState) -> dict:
-    """Unchanged from Session 4."""
+    """Updated in Session 5: now classifies into SIMPLE / COMPLEX / OUT_OF_SCOPE."""
     messages = [
-        SystemMessage(content=CLASSIFY_SYSTEM),
+        SystemMessage(content=CLASSIFY_SYSTEM_PROMPT),
         HumanMessage(content=state["customer_message"]),
     ]
     try:
@@ -66,11 +66,21 @@ def retrieve_docs(state: WealthDeskState) -> dict:
     if vectorstore is None:
         return {"retrieved_docs": []}
     try:
-        docs      = vectorstore.similarity_search(state["customer_message"], k=RETRIEVAL_K)
-        retrieved = [
-            f"[{doc.metadata.get('source', 'unknown')}]\n{doc.page_content}"
-            for doc in docs
-        ]
+        results   = vectorstore.similarity_search_with_relevance_scores(
+            state["customer_message"], k=RETRIEVAL_K
+        )
+        retrieved = []
+        for doc, score in results:
+            if score >= RETRIEVAL_SCORE_THRESHOLD:
+                retrieved.append(
+                    f"[{doc.metadata.get('source', 'unknown')}]\n{doc.page_content}"
+                )
+            else:
+                print(
+                    f"[WealthDesk] Chunk skipped (score {score:.2f} < {RETRIEVAL_SCORE_THRESHOLD}): "
+                    f"{doc.metadata.get('source', 'unknown')}"
+                )
+        print(f"[WealthDesk] Retrieval: {len(results)} candidates, {len(retrieved)} passed threshold ({RETRIEVAL_SCORE_THRESHOLD}).")
     except Exception as e:
         print(f"[WealthDesk] Retrieval error: {e}")
         retrieved = []
@@ -105,26 +115,41 @@ def respond(state: WealthDeskState) -> dict:
         result = llm_with_tools.invoke(messages)
 
         # -----------------------------------------------------------------------
-        # TODO 4 of 4 -- Execute tool calls and make a second LLM call
+        # TODO 4 of 4 -- Execute tool calls in a loop until the LLM is done
         # -----------------------------------------------------------------------
-        # If the LLM requested tool calls (result.tool_calls is non-empty):
+        # Optionally log any malformed tool calls first:
+        #   if result.invalid_tool_calls:
+        #       for itc in result.invalid_tool_calls: print(...)
         #
-        # Step A: Append the assistant message to messages:
-        #           messages.append(result)
+        # Set up a loop guard:
+        #   max_tool_rounds = 5
+        #   tool_rounds     = 0
         #
-        # Step B: For each tc in result.tool_calls:
-        #           tool_output = _run_tool(tc["name"], tc["args"])
-        #           print(f"[WealthDesk] Tool: {tc['name']}({tc['args']}) -> {str(tool_output)[:80]}")
-        #           messages.append(
-        #               ToolMessage(content=str(tool_output), tool_call_id=tc["id"])
-        #           )
+        # Use WHILE (not if): gpt-oss-20b calls one tool at a time, so a query
+        # like "rates and branches" triggers two sequential tool calls across two
+        # LLM responses. An `if` block exits after the first round and the second
+        # call would use plain llm — Groq rejects that with "Tool choice is none".
         #
-        # Step C: Make a second call (plain llm, no tools needed):
-        #           result = llm.invoke(messages)
+        # while result.tool_calls and tool_rounds < max_tool_rounds:
         #
-        # After the if-block: response_text = result.content
+        #   Step A: Append the assistant message to messages:
+        #             messages.append(result)
+        #
+        #   Step B: For each tc in result.tool_calls:
+        #             tool_output = _run_tool(tc["name"], tc["args"])
+        #             print(f"[WealthDesk] Tool: {tc['name']}({tc['args']}) -> {str(tool_output)[:80]}")
+        #             messages.append(
+        #                 ToolMessage(content=str(tool_output), tool_call_id=tc["id"])
+        #             )
+        #
+        #   Step C: Increment counter and make next call with llm_with_tools
+        #           (NOT plain llm — model may want another tool in the next round):
+        #             tool_rounds += 1
+        #             result = llm_with_tools.invoke(messages)
+        #
+        # After the while-block: response_text = result.content or ""
         # -----------------------------------------------------------------------
-        # TODO: add the if result.tool_calls block here
+        # TODO: add the while result.tool_calls block here
 
         # We execute tools manually here because WealthDeskState uses a custom
         # shape (history: list[dict]). In projects using LangGraph's standard
@@ -169,7 +194,7 @@ def decline(state: WealthDeskState) -> dict:
 
 
 def route_query(state: WealthDeskState) -> str:
-    """Unchanged from Session 4."""
+    """Updated in Session 5: COMPLEX routes to escalate; SIMPLE routes to retrieve_docs."""
     qt = state.get("query_type", "SIMPLE")
     if qt == "COMPLEX":
         return "escalate"

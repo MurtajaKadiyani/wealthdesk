@@ -92,6 +92,12 @@ TEST_CASES = [
     ("Bengaluru branch", "Do you have a branch in Bengaluru?",
      "SIMPLE", "answer"),
 
+    # ── Multi-tool: rates AND branches in one query ──────────────────────────
+    # Regression case: before the if→while fix, the second tool call (query_branch)
+    # caused a Groq 400 error — "Tool choice is none, but model called a tool".
+    ("Rates and branches", "Get me all the rates and branches",
+     "SIMPLE", "answer_with_rate"),
+
     # ── RAG policy questions (no tool expected) ──────────────────────────────
     ("Loan docs",        "What documents do I need to apply for a home loan?",
      "SIMPLE", "answer"),
@@ -187,6 +193,6 @@ if passed < total:
     print()
     print("  Common causes:")
     print("    answer_hallucinated → LLM answered rate question without calling query_rates()")
-    print("    wrong route         → CLASSIFY_SYSTEM prompt needs tightening")
+    print("    wrong route         → CLASSIFY_SYSTEM_PROMPT prompt needs tightening")
     print("    escalate got answer → COMPLEX case fell through to SIMPLE path")
 print("=" * 80 + "\n")

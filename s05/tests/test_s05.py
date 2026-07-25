@@ -263,12 +263,14 @@ class TestRespondWithTools:
         result = MagicMock()
         result.content = ""
         result.tool_calls = [{"id": call_id, "name": tool_name, "args": args}]
+        result.invalid_tool_calls = []
         return result
 
     def _make_text_result(self, content):
         result = MagicMock()
         result.content = content
         result.tool_calls = []
+        result.invalid_tool_calls = []
         return result
 
     def _base_state(self):
@@ -278,65 +280,58 @@ class TestRespondWithTools:
         }
 
     def test_respond_calls_llm_with_tools_first(self):
-        with patch.object(_nodes, "llm_with_tools") as mock_wt, \
-             patch.object(_nodes, "llm") as mock_llm:
+        with patch.object(_nodes, "llm_with_tools") as mock_wt:
             mock_wt.invoke.return_value = self._make_text_result("The rate is 8.5%.")
             respond(self._base_state())
         mock_wt.invoke.assert_called_once()
-        mock_llm.invoke.assert_not_called()
 
     def test_respond_no_tool_calls_returns_first_result(self):
         expected = "BNB offers home loans, personal loans, and more."
         state    = {**self._base_state(), "customer_message": "What are BNB's loan products?"}
-        with patch.object(_nodes, "llm_with_tools") as mock_wt, \
-             patch.object(_nodes, "llm"):
+        with patch.object(_nodes, "llm_with_tools") as mock_wt:
             mock_wt.invoke.return_value = self._make_text_result(expected)
             result = respond(state)
         assert result["response"] == expected
 
     def test_respond_makes_second_call_when_tool_requested(self):
+        # llm_with_tools is used for ALL calls now (not llm for the second call).
+        # side_effect provides different return values on successive .invoke() calls.
         with patch.object(_nodes, "llm_with_tools") as mock_wt, \
-             patch.object(_nodes, "llm") as mock_llm, \
-             patch.object(_nodes, "_run_tool", return_value="Home Loan: 8.5% p.a."):
-            mock_wt.invoke.return_value = self._make_tool_call_result(
-                "query_rates", {"product_type": "loan"}
-            )
-            mock_llm.invoke.return_value = self._make_text_result(
-                "The home loan rate is 8.5% p.a. WealthDesk | BNB"
-            )
+             patch.object(_nodes, "_run_tool", return_value="Home Loan: 8.50% p.a."):
+            mock_wt.invoke.side_effect = [
+                self._make_tool_call_result("query_rates", {"product_type": "loan"}),
+                self._make_text_result("The home loan rate is 8.50% p.a. WealthDesk | BNB"),
+            ]
             respond(self._base_state())
-        mock_llm.invoke.assert_called_once()
+        assert mock_wt.invoke.call_count == 2
 
     def test_respond_executes_tool_via_run_tool(self):
         state = {**self._base_state(), "customer_message": "Where are your Mumbai branches?"}
         with patch.object(_nodes, "llm_with_tools") as mock_wt, \
-             patch.object(_nodes, "llm") as mock_llm, \
              patch.object(_nodes, "_run_tool", return_value="BNB Andheri West...") as mock_rt:
-            mock_wt.invoke.return_value = self._make_tool_call_result(
-                "query_branch", {"city": "Mumbai"}
-            )
-            mock_llm.invoke.return_value = self._make_text_result("Here are the Mumbai branches.")
+            mock_wt.invoke.side_effect = [
+                self._make_tool_call_result("query_branch", {"city": "Mumbai"}),
+                self._make_text_result("Here are the Mumbai branches."),
+            ]
             respond(state)
         mock_rt.assert_called_once_with("query_branch", {"city": "Mumbai"})
 
     def test_respond_uses_second_call_content_as_response(self):
-        final_answer = "The car loan rate is 9.5% p.a. WealthDesk | BNB"
+        final_answer = "The car loan rate is 9.50% p.a. WealthDesk | BNB"
         state = {**self._base_state(), "customer_message": "What is the car loan rate?"}
         with patch.object(_nodes, "llm_with_tools") as mock_wt, \
-             patch.object(_nodes, "llm") as mock_llm, \
-             patch.object(_nodes, "_run_tool", return_value="Car Loan: 9.5% p.a."):
-            mock_wt.invoke.return_value = self._make_tool_call_result(
-                "query_rates", {"product_type": "loan"}
-            )
-            mock_llm.invoke.return_value = self._make_text_result(final_answer)
+             patch.object(_nodes, "_run_tool", return_value="Car Loan: 9.50% p.a."):
+            mock_wt.invoke.side_effect = [
+                self._make_tool_call_result("query_rates", {"product_type": "loan"}),
+                self._make_text_result(final_answer),
+            ]
             result = respond(state)
         assert result["response"] == final_answer
 
     def test_respond_history_grows_by_two(self):
         state = {**self._base_state(), "customer_message": "What is the FD rate?"}
-        with patch.object(_nodes, "llm_with_tools") as mock_wt, \
-             patch.object(_nodes, "llm"):
-            mock_wt.invoke.return_value = self._make_text_result("FD rates start at 6.8%.")
+        with patch.object(_nodes, "llm_with_tools") as mock_wt:
+            mock_wt.invoke.return_value = self._make_text_result("FD rates start at 6.80%.")
             result = respond(state)
         assert len(result["history"]) == 2
         assert result["history"][0]["role"] == "user"
@@ -344,24 +339,45 @@ class TestRespondWithTools:
 
     def test_respond_appends_tool_message_to_conversation(self):
         captured_messages = []
+        call_count = [0]
 
-        def capture_invoke(msgs):
+        def mock_invoke(msgs):
+            call_count[0] += 1
+            if call_count[0] == 1:
+                return self._make_tool_call_result("query_rates", {"product_type": "loan"})
             captured_messages.extend(msgs)
-            return MagicMock(content="8.5% p.a. WealthDesk | BNB", tool_calls=[])
+            return MagicMock(content="8.50% p.a. WealthDesk | BNB", tool_calls=[], invalid_tool_calls=[])
 
         with patch.object(_nodes, "llm_with_tools") as mock_wt, \
-             patch.object(_nodes, "llm") as mock_llm, \
-             patch.object(_nodes, "_run_tool", return_value="Home Loan: 8.5% p.a."):
-            mock_wt.invoke.return_value = self._make_tool_call_result(
-                "query_rates", {"product_type": "loan"}
-            )
-            mock_llm.invoke.side_effect = capture_invoke
+             patch.object(_nodes, "_run_tool", return_value="Home Loan: 8.50% p.a."):
+            mock_wt.invoke.side_effect = mock_invoke
             respond(self._base_state())
 
         from langchain_core.messages import ToolMessage as TM
         tool_messages = [m for m in captured_messages if isinstance(m, TM)]
         assert len(tool_messages) == 1
         assert "Home Loan" in tool_messages[0].content
+
+    def test_respond_handles_multi_round_tool_calls(self):
+        # Regression test: when the LLM requests two tools in separate rounds
+        # (query_rates first, then query_branch), the while loop must keep calling
+        # llm_with_tools — not plain llm — until no more tool calls are requested.
+        # Before the fix (if → while), the second round failed with:
+        # "Tool choice is none, but model called a tool" (Groq 400 error).
+        state = {**self._base_state(), "customer_message": "Get me all the rates and branches"}
+        with patch.object(_nodes, "llm_with_tools") as mock_wt, \
+             patch.object(_nodes, "_run_tool", side_effect=[
+                 "Home Loan: 8.50% p.a., ...",
+                 "BNB Andheri West (Mumbai)...",
+             ]):
+            mock_wt.invoke.side_effect = [
+                self._make_tool_call_result("query_rates",  {"product_type": "all"}, "call_001"),
+                self._make_tool_call_result("query_branch", {"city": "all"},          "call_002"),
+                self._make_text_result("Here are all BNB rates and branches. WealthDesk | BNB"),
+            ]
+            result = respond(state)
+        assert mock_wt.invoke.call_count == 3
+        assert "WealthDesk" in result["response"]
 
 
 # ---------------------------------------------------------------------------
@@ -380,12 +396,11 @@ class TestGraphRouting:
         mock_vs = self._mock_vectorstore()
         with patch.object(_nodes, "llm_with_tools") as mock_wt, \
              patch.object(_nodes, "classifier_llm") as mock_cl, \
-             patch.object(_nodes, "llm"), \
              patch.object(_nodes, "vectorstore", mock_vs), \
              patch.object(_nodes, "_init_vectorstore"):
             mock_cl.invoke.return_value = MagicMock(content="SIMPLE")
             mock_wt.invoke.return_value = MagicMock(
-                content="The home loan rate is 8.5%.", tool_calls=[]
+                content="The home loan rate is 8.5%.", tool_calls=[], invalid_tool_calls=[]
             )
             graph = build_graph(checkpointer=MemorySaver())
             config = {"configurable": {"thread_id": "test-simple"}}
