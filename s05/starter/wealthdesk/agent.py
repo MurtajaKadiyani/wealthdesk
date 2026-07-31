@@ -77,10 +77,7 @@ def run() -> None:
             print("\nWealthDesk: Thank you for choosing Bharat National Bank. Goodbye!")
             break
 
-        result = _graph.invoke(
-            {"customer_message": user_input, "response": ""},
-            config=config,
-        )
+        result = _graph.invoke({"customer_message": user_input, "response": ""}, config=config,) # type: ignore
         route = result.get("query_type", "?")
         docs  = result.get("retrieved_docs", [])
         print(f"\n[Routed: {route}]", end="")

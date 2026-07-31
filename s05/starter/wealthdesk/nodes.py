@@ -51,7 +51,7 @@ def classify(state: WealthDeskState) -> dict:
     ]
     try:
         result     = classifier_llm.invoke(messages)
-        query_type = result.content.strip().upper()
+        query_type = result.content.strip().upper() # type: ignore
         if query_type not in {"SIMPLE", "COMPLEX", "OUT_OF_SCOPE"}:
             query_type = "SIMPLE"
     except Exception as e:
@@ -91,7 +91,7 @@ def respond(state: WealthDeskState) -> dict:
     """Handle SIMPLE queries with RAG context and database tool calls."""
     history   = state.get("history", [])
     retrieved = state.get("retrieved_docs", [])
-
+ 
     if retrieved:
         context_block  = "\n\n---\n\n".join(retrieved)
         system_content = (
@@ -102,72 +102,45 @@ def respond(state: WealthDeskState) -> dict:
         )
     else:
         system_content = SYSTEM_PROMPT
-
+ 
     messages = [SystemMessage(content=system_content)]
     for turn in history:
         if turn["role"] == "user":
-            messages.append(HumanMessage(content=turn["content"]))
+            messages.append(HumanMessage(content=turn["content"])) # type: ignore
         else:
-            messages.append(AIMessage(content=turn["content"]))
-    messages.append(HumanMessage(content=state["customer_message"]))
-
+            messages.append(AIMessage(content=turn["content"])) # type: ignore
+    messages.append(HumanMessage(content=state["customer_message"])) # type: ignore
+ 
     try:
         result = llm_with_tools.invoke(messages)
-
-        # -----------------------------------------------------------------------
-        # TODO 4 of 4 -- Execute tool calls in a loop until the LLM is done
-        # -----------------------------------------------------------------------
-        # Optionally log any malformed tool calls first:
-        #   if result.invalid_tool_calls:
-        #       for itc in result.invalid_tool_calls: print(...)
-        #
-        # Set up a loop guard:
-        #   max_tool_rounds = 5
-        #   tool_rounds     = 0
-        #
-        # Use WHILE (not if): gpt-oss-20b calls one tool at a time, so a query
-        # like "rates and branches" triggers two sequential tool calls across two
-        # LLM responses. An `if` block exits after the first round and the second
-        # call would use plain llm — Groq rejects that with "Tool choice is none".
-        #
-        # while result.tool_calls and tool_rounds < max_tool_rounds:
-        #
-        #   Step A: Append the assistant message to messages:
-        #             messages.append(result)
-        #
-        #   Step B: For each tc in result.tool_calls:
-        #             tool_output = _run_tool(tc["name"], tc["args"])
-        #             print(f"[WealthDesk] Tool: {tc['name']}({tc['args']}) -> {str(tool_output)[:80]}")
-        #             messages.append(
-        #                 ToolMessage(content=str(tool_output), tool_call_id=tc["id"])
-        #             )
-        #
-        #   Step C: Increment counter and make next call with llm_with_tools
-        #           (NOT plain llm — model may want another tool in the next round):
-        #             tool_rounds += 1
-        #             result = llm_with_tools.invoke(messages)
-        #
-        # After the while-block: response_text = result.content or ""
-        # -----------------------------------------------------------------------
-        # TODO: add the while result.tool_calls block here
-
-        # We execute tools manually here because WealthDeskState uses a custom
-        # shape (history: list[dict]). In projects using LangGraph's standard
-        # MessagesState you'd use the built-in ToolNode instead:
-        #
-        #   from langgraph.prebuilt import ToolNode
-        #   builder.add_node("tools", ToolNode([query_rates, query_branch]))
-        #   builder.add_edge("respond", "tools")
-        #   builder.add_edge("tools", "respond")
-        #
-        # Both patterns are valid. ToolNode is less code; this gives more control.
-
+        if result.invalid_tool_calls:
+            for itc in result.invalid_tool_calls:
+                print(f"[WealthDesk] Invalid tool call ignored: {itc.get('name', 'unknown')} — {itc.get('error', 'parse error')}")
+        max_tool_rounds = 5
+        tool_rounds     = 0
+          # all return different raw formats; LangChain maps them to the same four keys):
+        #   tc["name"] : str  -- tool name,  e.g. "query_rates"
+        #   tc["args"] : dict -- arguments,  e.g. {"product_type": "loan"}
+        #   tc["id"]   : str  -- unique ID,  e.g. "call_abc123" (used to match ToolMessage back)
+        #   tc["type"] : str  -- always "tool_call" in this list
+        while result.tool_calls and tool_rounds < max_tool_rounds:
+            messages.append(result) # type: ignore
+            for tc in result.tool_calls:
+                tool_output = _run_tool(tc["name"], tc["args"])
+                print(f"[WealthDesk] Tool: {tc['name']}({tc['args']}) -> {str(tool_output)[:80]}")
+                # tool_call_id links this result back to the specific tool call in the AIMessage above.
+                # When the LLM calls multiple tools in one turn, the second LLM call uses these IDs
+                # to know which result belongs to which call. Most providers reject ToolMessages
+                # that have no matching tool_call_id in the message history.
+                messages.append(ToolMessage(content=str(tool_output), tool_call_id=tc["id"])) # type: ignore
+            tool_rounds += 1
+            result = llm_with_tools.invoke(messages)
         response_text = result.content
-
+ 
     except Exception as e:
         print(f"[WealthDesk] LLM error: {e}")
         response_text = "I am temporarily unavailable. Please try again in a moment."
-
+ 
     new_history = history + [
         {"role": "user",      "content": state["customer_message"]},
         {"role": "assistant", "content": response_text},
