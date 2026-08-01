@@ -40,6 +40,9 @@ langsmith>=0.1.0,<2.0
 # --- Session 7+: MCP (Model Context Protocol) ---
 mcp>=1.0.0,<2.0
 
+# --- Session 8+: MCP agent tool loading ---
+langchain-mcp-adapters>=0.3.0,<1.0
+
 # --- Session 13+: Web UI ---
 streamlit>=1.35.0,<2.0
 

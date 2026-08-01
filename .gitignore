@@ -16,11 +16,16 @@ s*/*_slides.md
 s*/*_slides_*.md
 s*/*_DeepDive_*.md
 s*/*_check.md
+s*/*_review_*.md
 s*/*.pptx
 s*/*.html
 s*/*.pdf
 s*/instructor_demo/
 prds/
+_pre_mcp_adapters_backup_*/
+s10/
+s11/
+s12/
 
 # Generated files -- recreate with seed.py and ingest.py
 data/bnb_data.db
