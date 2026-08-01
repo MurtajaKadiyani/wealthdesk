@@ -96,7 +96,7 @@ DATASET_PATH = DATA_DIR / "golden_dataset.json"
 #                    the judge from rambling before giving the score.
 judge_llm = ChatGroq(
     api_key=GROQ_API_KEY, # type: ignore
-    model=MODEL_NAME,
+    model=MODEL_NAME, # type: ignore
     temperature=0.0,
     max_tokens=100,
 )
