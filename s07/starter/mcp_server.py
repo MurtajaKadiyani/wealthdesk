@@ -66,17 +66,30 @@ def query_rates(product_type: str = "all") -> str:
 
     Returns formatted rate information as a plain-text string.
     """
-    # TODO 1: Connect to DB_PATH with sqlite3.connect()
-    # If product_type is "loan" or "all":
-    #   SELECT name, interest_rate, tenure_min_years, tenure_max_years
-    #   FROM loan_products ORDER BY interest_rate
-    #   Append each row as: f"{name}: {rate:.1f}% p.a., tenure {min_y}-{max_y} years"
-    # If product_type is "fd" or "all":
-    #   SELECT tenure_label, interest_rate, senior_rate
-    #   FROM fd_products ORDER BY tenure_months
-    #   Append each row as: f"FD {label}: {rate:.1f}% p.a. (senior citizens: {rate+senior:.1f}%)"
-    # Close the connection and return "\n".join(lines) or "No rate data found."
-    raise NotImplementedError("TODO 1: implement the SQL queries for query_rates()")
+    conn  = sqlite3.connect(str(DB_PATH), check_same_thread=False)
+    lines = []
+ 
+    if product_type in ("loan", "all"):
+        rows = conn.execute(
+            "SELECT name, interest_rate, tenure_min_years, tenure_max_years "
+            "FROM loan_products ORDER BY interest_rate"
+        ).fetchall()
+        for name, rate, min_y, max_y in rows:
+            lines.append(f"{name}: {rate:.2f}% p.a., tenure {min_y}-{max_y} years")
+ 
+    if product_type in ("fd", "all"):
+        rows = conn.execute(
+            "SELECT tenure_label, interest_rate, senior_rate "
+            "FROM fd_products ORDER BY tenure_months"
+        ).fetchall()
+        for label, rate, senior in rows:
+            lines.append(
+                f"FD {label}: {rate:.2f}% p.a. "
+                f"(senior citizens: {rate + senior:.2f}%, extra +{senior:.2f}%)"
+            )
+ 
+    conn.close()
+    return "\n".join(lines) if lines else "No rate data found."
 
 
 # ---------------------------------------------------------------------------
@@ -95,18 +108,40 @@ def query_branch(city: str = "all") -> str:
 
     Returns branch names, addresses, IFSC codes, and phone numbers.
     """
-    # TODO 2: Connect to DB_PATH with sqlite3.connect()
-    # If city.lower() == "all":
-    #   SELECT name, city, address, ifsc, phone FROM branches ORDER BY city, name
-    # Else (filter by city):
-    #   SELECT name, city, address, ifsc, phone FROM branches
-    #   WHERE city LIKE ? ORDER BY name
-    #   Pass (f"%{city}%",) as the parameter -- never interpolate city into the SQL string
-    # If no rows found: return f"No BNB branches found for city: '{city}'."
-    # Format each branch as:
-    #   f"{name} ({city_})\n  Address: {address}\n  IFSC: {ifsc}  |  Phone: {phone}"
-    # Return branches joined by "\n\n"
-    raise NotImplementedError("TODO 2: implement the SQL queries for query_branch()")
+    conn = sqlite3.connect(str(DB_PATH), check_same_thread=False)  # see query_rates for why
+ 
+    if city.lower() == "all":
+        rows = conn.execute(
+            "SELECT name, city, address, ifsc, phone FROM branches ORDER BY city, name"
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT name, city, address, ifsc, phone "
+            "FROM branches WHERE city LIKE ? ORDER BY name",
+            (f"%{city}%",),
+        ).fetchall()
+        if not rows:
+            # Neighbourhood names (e.g. "Andheri West", "Koramangala") are stored
+            # in the branch name, not the city column — retry by name.
+            rows = conn.execute(
+                "SELECT name, city, address, ifsc, phone "
+                "FROM branches WHERE name LIKE ? ORDER BY name",
+                (f"%{city}%",),
+            ).fetchall()
+ 
+    conn.close()
+ 
+    if not rows:
+        return f"No BNB branches found for city: '{city}'."
+ 
+    parts = []
+    for name, city_, address, ifsc, phone in rows:
+        parts.append(
+            f"{name} ({city_})\n"
+            f"  Address: {address}\n"
+            f"  IFSC: {ifsc}  |  Phone: {phone}"
+        )
+    return "\n\n".join(parts)
 
 
 # ---------------------------------------------------------------------------

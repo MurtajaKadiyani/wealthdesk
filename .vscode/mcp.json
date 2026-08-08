@@ -1,0 +1,11 @@
+{
+    "servers":{
+        "wealthdesk-tools": {
+             "type": "stdio",
+             "command": "python",
+             "args": ["E:\\Applied AI Engineering\\wealthdesk\\s07\\starter\\mcp_server.py"]
+    }
+        
+    }
+ 
+}
