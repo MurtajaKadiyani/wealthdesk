@@ -2,20 +2,20 @@
 wealthdesk/agent.py
 -------------------
 Builds and runs the WealthDesk LangGraph agent.
-
+ 
 Session 9: adds check_compliance node after respond, and wires it to END.
 Also adds LangSmith tracing (enabled in wealthdesk/__init__.py).
-
+ 
 Run with:
     python -m wealthdesk.agent
 """
 import os
 import sqlite3
 from uuid import uuid4
-
+ 
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
-
+ 
 from .config import CHECKPOINT_DB, MCP_SERVER_PATH
 from .nodes import (
     check_compliance,
@@ -27,14 +27,15 @@ from .nodes import (
     route_query,
 )
 from .state import WealthDeskState
-
-
+ 
+ 
 def build_graph(checkpointer=None):
     builder = StateGraph(WealthDeskState)
-
+ 
     builder.add_node("classify",      classify)
     builder.add_node("retrieve_docs", retrieve_docs)
     builder.add_node("respond",       respond)
+    builder.add_node("check_compliance", check_compliance)
     # ---------------------------------------------------------------------------
     # TODO 4 of 4 -- Add check_compliance node and wire it into the graph
     # ---------------------------------------------------------------------------
@@ -51,39 +52,40 @@ def build_graph(checkpointer=None):
     # ---------------------------------------------------------------------------
     builder.add_node("escalate",      escalate)
     builder.add_node("decline",       decline)
-
+ 
     builder.set_entry_point("classify")
     builder.add_conditional_edges("classify", route_query, {
         "retrieve_docs": "retrieve_docs",
         "escalate":      "escalate",
         "decline":       "decline",
     })
-
+ 
     builder.add_edge("retrieve_docs", "respond")
-    builder.add_edge("respond",       END)   # TODO: change to "check_compliance"
+    builder.add_edge("respond", "check_compliance")
+    builder.add_edge("check_compliance",       END)
     # TODO: add builder.add_edge("check_compliance", END)
     builder.add_edge("escalate",      END)
     builder.add_edge("decline",       END)
-
+ 
     return builder.compile(checkpointer=checkpointer)
-
-
+ 
+ 
 graph = build_graph()
-
-
+ 
+ 
 def run() -> None:
     conn = sqlite3.connect(str(CHECKPOINT_DB), check_same_thread=False)
     g         = build_graph(checkpointer=SqliteSaver(conn))
     thread_id = str(uuid4())
     config    = {"configurable": {"thread_id": thread_id}}
-
+ 
     if not MCP_SERVER_PATH.exists():
         print(f"[WealthDesk] WARNING: MCP server not found at {MCP_SERVER_PATH}")
         print("  Complete Session 7 first.")
-
+ 
     tracing_on = os.environ.get("LANGCHAIN_TRACING_V2", "").lower() == "true"
     project    = os.environ.get("LANGCHAIN_PROJECT", "batch1-wealthdesk")
-
+ 
     print("=" * 60)
     print("  WealthDesk | Bharat National Bank")
     print("  Compliance: SEBI phrase filter + rate verification")
@@ -92,28 +94,28 @@ def run() -> None:
     print("=" * 60)
     print(f"  Session: {thread_id[:8]}...")
     print("=" * 60)
-
+ 
     while True:
         try:
             user_input = input("\nYou: ").strip()
         except (KeyboardInterrupt, EOFError):
             print("\n\nWealthDesk: Session ended. Goodbye!")
             break
-
+ 
         if not user_input:
             continue
         if user_input.lower() in {"quit", "exit", "bye"}:
             print("\nWealthDesk: Thank you for choosing Bharat National Bank. Goodbye!")
             break
-
+ 
         result = g.invoke(
-            {"customer_message": user_input, "response": "", "compliance_status": ""},
-            config=config,
+            {"customer_message": user_input, "response": "", "compliance_status": ""}, # type: ignore
+            config=config, # type: ignore
         )
         route      = result.get("query_type", "?")
         compliance = result.get("compliance_status", "")
         docs       = result.get("retrieved_docs", [])
-
+ 
         print(f"\n[Routed: {route}]", end="")
         if docs:
             sources = {d.split("]\n")[0].lstrip("[") for d in docs if "]\n" in d}
@@ -122,7 +124,7 @@ def run() -> None:
             print(f"  [Compliance: {compliance}]", end="")
         print()
         print(f"\nWealthDesk: {result['response']}")
-
-
+ 
+ 
 if __name__ == "__main__":
     run()

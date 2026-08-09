@@ -85,7 +85,7 @@ VECTORSTORE_DIR = DATA_DIR / "vectorstore"
 EMBED_MODEL     = "all-MiniLM-L6-v2"
 RETRIEVAL_K     = 2
 
-MCP_SERVER_PATH = Path(__file__).parent.parent.parent.parent / "s07" / "solution" / "mcp_server.py"
+MCP_SERVER_PATH = Path(__file__).parent.parent.parent.parent / "s07" / "starter" / "mcp_server.py"
 
 SEBI_BANNED_PHRASES = [
     "guaranteed returns",
