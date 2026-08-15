@@ -103,8 +103,11 @@ MCP_SERVER_PATH = Path(__file__).parent.parent.parent.parent / "s07" / "solution
 
 SEBI_BANNED_PHRASES = [
     "guaranteed returns",
+    "guaranteed return",
+    "guaranteed interest",
     "risk-free",
     "assured profit",
+    "assured returns",
     "no risk",
 ]
 

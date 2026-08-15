@@ -132,7 +132,7 @@ def check_sebi(state: WealthDeskState) -> dict:
 #           f"The response was flagged for: {reason}\n\n"
 #           "Rewrite it to fix the violation while keeping the response helpful.\n\n"
 #           "Rules:\n"
-#           "  1. Never use: 'guaranteed returns', 'risk-free', 'assured profit', 'no risk'\n"
+#           "  1. Never use: 'guaranteed returns', 'guaranteed return', 'guaranteed interest', 'risk-free', 'assured profit', 'assured returns', 'no risk'\n"
 #           "  2. Only state interest rates that appeared in the original -- do not add new ones\n"
 #           "  3. Keep the rewritten response under 150 words\n"
 #           "  4. End with 'WealthDesk | Bharat National Bank'\n\n"
