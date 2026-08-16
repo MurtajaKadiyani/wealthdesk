@@ -50,35 +50,28 @@ CLASSIFY_SYSTEM = """You are a query classifier for WealthDesk, the BNB banking 
 
 Classify the customer's query into exactly one category:
 
-RATES        : A question about specific BNB interest rates, loan EMI, or branch locations.
+RATES        : A question about specific BNB interest rates, loan products (home loan,
+               personal loan, car loan, education loan, gold loan), fixed deposit rates,
+               or branch locations and contact details.
                Examples: "What is the home loan rate?", "Where is the nearest branch?",
-               "What FD rate do senior citizens get?", "What are the car loan rates?"
+               "What FD rate do senior citizens get?"
 
-POLICY       : A question about BNB's rules, fees, required documents, eligibility
-               criteria, minimum amounts, terms, or general banking procedures.
+POLICY       : A question about BNB's policies, fees, eligibility rules, required
+               documents, terms and conditions, or general banking procedures.
                Examples: "What documents do I need for a home loan?",
-               "What is the minimum FD amount?", "What is BNB's prepayment penalty?",
-               "How long does loan approval take?"
+               "What is the minimum FD amount?", "What is BNB's prepayment penalty?"
 
-COMPLEX      : A question asking for advice, a recommendation, a personal plan, or
-               a comparison that depends on the customer's individual situation.
-               Examples: "Should I take a home loan now or wait for rates to fall?",
-               "How much loan can I get on my salary of Rs. 80,000?",
-               "Is FD better than a mutual fund for me?"
+COMPLEX      : A question requiring product comparison, personal eligibility assessment,
+               financial planning advice, or a recommendation across multiple options.
+               Examples: "Should I take a home loan or use my savings?",
+               "How much loan can I get on my salary of Rs. 80,000?"
 
-OUT_OF_SCOPE : A request that has nothing to do with BNB banking — general knowledge,
-               sports, entertainment, weather, or any non-banking topic.
-               Examples: "Who won the cricket World Cup?", "Write me a poem",
-               "What is the weather today?", "Tell me a joke"
+OUT_OF_SCOPE : A request unrelated to BNB banking products and services.
+               Examples: "Write me a poem", "What is the stock market doing today?"
 
-Decision rules (apply in order):
-1. If the topic has nothing to do with BNB banking → OUT_OF_SCOPE
-2. If it asks for personal advice, "should I", a recommendation, or personal eligibility → COMPLEX
-3. If it asks about documents, minimum amounts, fees, eligibility rules, or procedures → POLICY
-4. Otherwise (current rates, branch info) → RATES
-5. If the message is a short follow-up (e.g. "and what about X?", "what about Y"),
-   classify it the same way you would classify a fresh question about that same topic --
-   use the conversation history above only to resolve what "X"/"Y" refers to.
+If the message is a short follow-up (e.g. "and what about X?", "what about Y"),
+classify it the same way you would classify a fresh question about that same topic --
+use the conversation history above only to resolve what "X"/"Y" refers to.
 
 Reply with exactly one word: RATES, POLICY, COMPLEX, or OUT_OF_SCOPE. No explanation."""
 
@@ -100,9 +93,27 @@ DECLINE_RESPONSE = (
 )
 
 DATA_DIR        = Path(__file__).parent.parent.parent.parent / "data"
+DB_PATH         = DATA_DIR / "bnb_data.db"
 CHECKPOINT_DB   = DATA_DIR / "checkpoints.db"
 VECTORSTORE_DIR = DATA_DIR / "vectorstore"
 EMBED_MODEL     = "all-MiniLM-L6-v2"
 RETRIEVAL_K     = 2
 
-MCP_SERVER_PATH = Path(__file__).parent.parent.parent.parent / "s07" / "starter" / "mcp_server.py"
+MCP_SERVER_PATH = Path(__file__).parent.parent.parent.parent / "s07" / "solution" / "mcp_server.py"
+
+SEBI_BANNED_PHRASES = [
+    "guaranteed returns",
+    "guaranteed return",
+    "guaranteed interest",
+    "risk-free",
+    "assured profit",
+    "assured returns",
+    "no risk",
+]
+
+SAFE_COMPLIANCE_RESPONSE = (
+    "BNB offers competitive interest rates on its products. "
+    "All returns are subject to applicable terms and market conditions. "
+    "Please speak with a BNB Relationship Manager for guidance tailored to your needs.\n\n"
+    "WealthDesk | Bharat National Bank"
+)

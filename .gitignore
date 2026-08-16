@@ -23,6 +23,15 @@ s*/*.pdf
 s*/instructor_demo/
 prds/
 _pre_mcp_adapters_backup_*/
+<<<<<<< HEAD
+=======
+s10b/
+s11/
+s12/app.py
+s14/
+s14b/
+s15/
+>>>>>>> 30621cde5295ec7aefb12f61e070adcd9945f0bb
 
 # Generated files -- recreate with seed.py and ingest.py
 data/bnb_data.db

@@ -43,7 +43,7 @@ def classify(state: WealthDeskState) -> dict:
     ]
     try:
         result     = classifier_llm.invoke(messages)
-        query_type = result.content.strip().upper()
+        query_type = result.content.strip().upper() # type: ignore
         if query_type not in {"SIMPLE", "COMPLEX", "OUT_OF_SCOPE"}:
             query_type = "SIMPLE"
     except Exception as e:
@@ -90,10 +90,10 @@ def respond(state: WealthDeskState) -> dict:
     messages = [SystemMessage(content=system_content)]
     for turn in history:
         if turn["role"] == "user":
-            messages.append(HumanMessage(content=turn["content"]))
+            messages.append(HumanMessage(content=turn["content"])) # type: ignore
         else:
-            messages.append(AIMessage(content=turn["content"]))
-    messages.append(HumanMessage(content=state["customer_message"]))
+            messages.append(AIMessage(content=turn["content"]))  # type: ignore
+    messages.append(HumanMessage(content=state["customer_message"]))  # type: ignore
 
     try:
         result = llm_with_tools.invoke(messages)
@@ -105,14 +105,14 @@ def respond(state: WealthDeskState) -> dict:
         max_tool_rounds = 5
         tool_rounds     = 0
         while result.tool_calls and tool_rounds < max_tool_rounds:
-            messages.append(result)
+            messages.append(result) # type: ignore
             for tc in result.tool_calls:
                 tool_output = _run_tool(tc["name"], tc["args"])
                 print(
                     f"[WealthDesk] MCP tool: {tc['name']}({tc['args']}) "
                     f"-> {str(tool_output)[:80]}"
                 )
-                messages.append(ToolMessage(content=str(tool_output), tool_call_id=tc["id"]))
+                messages.append(ToolMessage(content=str(tool_output), tool_call_id=tc["id"]))  # type: ignore
             tool_rounds += 1
             result = llm_with_tools.invoke(messages)
 

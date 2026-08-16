@@ -10,20 +10,27 @@ import sys
 from langchain_groq import ChatGroq
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
-from .config import GROQ_API_KEY, MAX_TOKENS, MCP_SERVER_PATH, MODEL_NAME, TEMPERATURE
+from .config import (
+    GROQ_API_KEY,
+    MAX_TOKENS,
+    MCP_SERVER_PATH,
+    MODEL_NAME,
+    TEMPERATURE,
+)
 
 llm = ChatGroq(
-    api_key=GROQ_API_KEY, # type: ignore
+    api_key=GROQ_API_KEY,
     model=MODEL_NAME,
     temperature=TEMPERATURE,
     max_tokens=MAX_TOKENS,
 )
 
 classifier_llm = ChatGroq(
-    api_key=GROQ_API_KEY, # type: ignore
+    api_key=GROQ_API_KEY,
     model=MODEL_NAME,
     temperature=0.0,
-    max_tokens=10,
+    # max_tokens removed — openai/gpt-oss-20b uses reasoning tokens
+    # that exhaust max_tokens=10 budget before producing output
 )
 
 # ---------------------------------------------------------------------------
