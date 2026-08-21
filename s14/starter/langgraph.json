@@ -1,7 +1,1 @@
-{
-  "graphs": {
-    "wealthdesk": "wealthdesk.agent:graph"
-  },
-  "python_version": "3.11",
-  "dependencies": ["."]
-}
+{"dependencies": ["."], "graphs": {"wealthdesk": "wealthdesk.agent:graph"}, "env": "../../.env"}
