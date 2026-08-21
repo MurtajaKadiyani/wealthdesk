@@ -26,7 +26,6 @@ _pre_mcp_adapters_backup_*/
 s10b/
 s11/
 s12/app.py
-s14/
 s14b/
 s15/
 
@@ -49,6 +48,9 @@ htmlcov/
 
 # LangGraph Studio local server cache
 .langgraph_api/
+
+# Streamlit local config (suppresses torchvision watcher noise)
+.streamlit/
 
 # Editor
 .vscode/settings.json
