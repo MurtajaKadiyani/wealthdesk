@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(python -c \"from langchain_text_splitters import MarkdownHeaderTextSplitter; print\\('ok'\\)\")",
+      "Bash(tasklist //FI \"IMAGENAME eq python.exe\" //FI \"IMAGENAME eq streamlit.exe\")",
+      "Bash(tasklist)",
+      "Bash(taskkill //PID 15024 //F)",
+      "Bash(python data/ingest.py)",
+      "Bash(PYTHONIOENCODING=utf-8 bash -c \"printf 'What are documents required for personal loan\\\\nquit\\\\n' | python -m wealthdesk.agent\")",
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 bash -c \"printf 'What are documents required for all types of loans\\\\nWhat are documents required for personal loan\\\\nquit\\\\n' | python -m wealthdesk.agent\")"
+    ]
+  }
+}

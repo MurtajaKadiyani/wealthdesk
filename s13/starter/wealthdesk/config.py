@@ -12,7 +12,17 @@ if not GROQ_API_KEY:
 
 MODEL_NAME  = "openai/gpt-oss-20b"
 TEMPERATURE = 0.3
-MAX_TOKENS  = 300
+
+# openai/gpt-oss-20b is a reasoning model: its hidden reasoning tokens are
+# billed against max_tokens before any visible content is written. At
+# reasoning_effort="medium" (Groq's default) a policy question with a few
+# retrieved chunks in context can burn the whole budget on reasoning and
+# return empty content with finish_reason="length". "low" keeps reasoning
+# to a few dozen tokens so the visible answer reliably gets written, and
+# MAX_TOKENS is sized for that answer (~150 words) plus a safety margin for
+# reasoning tokens rather than the answer alone.
+MAX_TOKENS       = 600
+REASONING_EFFORT = "low"
 
 SYSTEM_PROMPT = """You are WealthDesk, the AI banking assistant at Bharat National Bank (BNB).
 
@@ -97,9 +107,9 @@ DB_PATH         = DATA_DIR / "bnb_data.db"
 CHECKPOINT_DB   = DATA_DIR / "checkpoints.db"
 VECTORSTORE_DIR = DATA_DIR / "vectorstore"
 EMBED_MODEL     = "all-MiniLM-L6-v2"
-RETRIEVAL_K     = 2
+RETRIEVAL_K     = 3
 
-MCP_SERVER_PATH = Path(__file__).parent.parent.parent.parent / "s07" / "solution" / "mcp_server.py"
+MCP_SERVER_PATH = Path(__file__).parent.parent.parent.parent / "s07" / "starter" / "mcp_server.py"
 
 SEBI_BANNED_PHRASES = [
     "guaranteed returns",

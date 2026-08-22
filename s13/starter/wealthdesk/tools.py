@@ -15,6 +15,7 @@ from .config import (
     MAX_TOKENS,
     MCP_SERVER_PATH,
     MODEL_NAME,
+    REASONING_EFFORT,
     TEMPERATURE,
 )
 
@@ -23,6 +24,7 @@ llm = ChatGroq(
     model=MODEL_NAME,
     temperature=TEMPERATURE,
     max_tokens=MAX_TOKENS,
+    reasoning_effort=REASONING_EFFORT,
 )
 
 classifier_llm = ChatGroq(

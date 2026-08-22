@@ -45,7 +45,7 @@ from pathlib import Path
 from typing import List
 
 from dotenv import load_dotenv
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
@@ -63,6 +63,13 @@ CHUNK_OVERLAP = 50    # overlap between consecutive chunks
 # Smaller chunks (500 chars) give more precise retrieval but may split context
 # across chunks. 50-char overlap ensures a sentence that straddles a boundary
 # is preserved in at least one chunk.
+#
+# Splitting is header-aware (see split_documents()): we first cut on markdown
+# "#"/"##" boundaries so a section like "## Required Documents" never gets
+# fused with the unrelated paragraph before it, then only fall back to plain
+# character splitting for sections that are still too long. Each resulting
+# chunk is prefixed with its document title so retrieval can tell "personal
+# loan" chunks apart from "home loan" chunks even when the wording overlaps.
 
 
 def load_documents() -> List[Document]:
@@ -99,16 +106,55 @@ def load_documents() -> List[Document]:
 def split_documents(docs: List[Document]) -> List[Document]:
     """Split documents into chunks for retrieval.
 
-    RecursiveCharacterTextSplitter tries to split at paragraph boundaries first,
-    then sentence boundaries, then character boundaries. This preserves semantic
-    context better than splitting at fixed character positions.
+    Two passes:
+      1. MarkdownHeaderTextSplitter cuts each document on "#"/"##" boundaries
+         first, so a section (e.g. "## Required Documents") never gets fused
+         with the tail of an unrelated section. This was the bug that made
+         "documents required for personal loan" miss the actual document
+         list: with plain character splitting, that section landed in a
+         chunk mostly made of the previous section's text, which pulled its
+         embedding away from "documents".
+      2. Any section still longer than CHUNK_SIZE falls back to
+         RecursiveCharacterTextSplitter (paragraph -> sentence -> character
+         boundaries), so long FAQ categories still get precise sub-chunks.
+
+    Every chunk is prefixed with "<doc title> > <section>" before embedding.
+    This keeps the product name (e.g. "BNB Personal Loan Guide") attached to
+    every chunk from that document, so a personal-loan query doesn't get
+    outranked by a lexically-similar but wrong-product chunk (e.g. a home
+    loan FAQ entry that also happens to say "documents" and "loan").
     """
-    splitter = RecursiveCharacterTextSplitter(
+    header_splitter = MarkdownHeaderTextSplitter(
+        headers_to_split_on=[("#", "h1"), ("##", "h2")],
+        strip_headers=True,
+    )
+    char_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,
         chunk_overlap=CHUNK_OVERLAP,
         length_function=len,
     )
-    return splitter.split_documents(docs)
+
+    chunks: List[Document] = []
+    for doc in docs:
+        source = doc.metadata["source"]
+        for section in header_splitter.split_text(doc.page_content):
+            title   = section.metadata.get("h1", "")
+            heading = section.metadata.get("h2", "")
+            prefix  = f"{title} > {heading}\n\n" if heading else f"{title}\n\n"
+            body    = section.page_content.strip()
+            if not body:
+                continue
+
+            bodies = (
+                [body] if len(prefix) + len(body) <= CHUNK_SIZE
+                else char_splitter.split_text(body)
+            )
+            for b in bodies:
+                chunks.append(Document(
+                    page_content=prefix + b,
+                    metadata={"source": source, "section": heading or title},
+                ))
+    return chunks
 
 
 def main() -> None:

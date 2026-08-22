@@ -19,14 +19,14 @@ from .config import (
 )
 
 llm = ChatGroq(
-    api_key=GROQ_API_KEY,
+    api_key=GROQ_API_KEY, # type: ignore
     model=MODEL_NAME,
     temperature=TEMPERATURE,
     max_tokens=MAX_TOKENS,
 )
 
 classifier_llm = ChatGroq(
-    api_key=GROQ_API_KEY,
+    api_key=GROQ_API_KEY, # type: ignore
     model=MODEL_NAME,
     temperature=0.0,
     # max_tokens removed — openai/gpt-oss-20b uses reasoning tokens
